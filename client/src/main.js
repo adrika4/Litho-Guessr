@@ -19,10 +19,9 @@ const LOCATIONS = [
 
 // ---- Map setup ----
 const map = L.map('map').setView([20, 0], 2);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19,
-  subdomains: 'abcd',
-  attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+  attribution: '&copy; OpenStreetMap contributors',
 }).addTo(map);
 
 // ---- Page elements ----
