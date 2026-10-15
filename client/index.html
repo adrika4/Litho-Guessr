@@ -2,12 +2,33 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>client</title>
+    <title>GeoGuessr Clone</title>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="photo-box"></div>
+    <div id="map"></div>
+
+    <div id="hud">
+      <span id="round-label"></span>
+      <span id="total-label"></span>
+    </div>
+
+    <div id="panel">
+      <button id="guess-btn" disabled>Guess</button>
+      <button id="next-btn" hidden>Next round</button>
+      <p id="result"></p>
+    </div>
+
+    <div id="final" hidden>
+      <div id="final-card">
+        <h2>Game over</h2>
+        <p id="final-total"></p>
+        <ol id="final-list"></ol>
+        <button id="play-again-btn">Play again</button>
+      </div>
+    </div>
+
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
