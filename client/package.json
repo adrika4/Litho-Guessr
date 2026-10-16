@@ -12,6 +12,7 @@
     "vite": "^8.3.0"
   },
   "dependencies": {
-    "leaflet": "^1.9.4"
+    "leaflet": "^1.9.4",
+    "mapillary-js": "^4.1.2"
   }
 }

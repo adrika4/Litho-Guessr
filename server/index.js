@@ -33,48 +33,66 @@ async function fetchImages(loc, d) {
     'https://graph.mapillary.com/images' +
     `?fields=id,is_pano,computed_geometry,geometry&is_pano=true&bbox=${bbox}&limit=50`;
 
-  const r = await fetch(url, { headers: { Authorization: `OAuth ${TOKEN}` } });
+  const r = await fetch(url, {
+    headers: { Authorization: `OAuth ${TOKEN}` },
+    signal: AbortSignal.timeout(10000), // give up after 10 seconds
+  });
+  
   const body = await r.json();
   return { ok: r.ok, status: r.status, body };
 }
 
 // Try a big box first. If Mapillary says "too much data", retry with smaller boxes.
-async function findPano(loc) {
+// Remember search results per city: name -> Promise of a list of 360 photos.
+const panoCache = new Map();
+
+function getPanos(loc) {
+  if (!panoCache.has(loc.name)) {
+    panoCache.set(loc.name, searchPanos(loc));
+  }
+  return panoCache.get(loc.name);
+}
+
+// Try a big box first. If Mapillary says "too much data", retry with smaller boxes.
+async function searchPanos(loc) {
   for (const d of [0.005, 0.0015, 0.0006]) {
     try {
       const { ok, status, body } = await fetchImages(loc, d);
 
       if (!ok) {
         console.log(`[${loc.name}] box ${d}: error ${status}`);
-        continue; // try the smaller box
+        continue;
       }
 
-      const all = body.data ?? [];
-      const usable = all.filter((img) => img.is_pano && (img.computed_geometry || img.geometry));
-      console.log(`[${loc.name}] box ${d}: returned ${all.length}, usable ${usable.length}`);
-      if (usable.length === 0) return null;
+      const usable = (body.data ?? [])
+        .filter((img) => img.is_pano && (img.computed_geometry || img.geometry))
+        .map((img) => {
+          const point = img.computed_geometry ?? img.geometry;
+          const [lng, lat] = point.coordinates; // GeoJSON order is [lng, lat]
+          return { imageId: img.id, lat, lng, name: loc.name };
+        });
 
-      const pick = usable[Math.floor(Math.random() * usable.length)];
-      const point = pick.computed_geometry ?? pick.geometry;
-      const [lng, lat] = point.coordinates; // GeoJSON order is [lng, lat]
-      return { imageId: pick.id, lat, lng, name: loc.name };
+      console.log(`[${loc.name}] box ${d}: found ${usable.length} panos`);
+      return usable;
     } catch (err) {
       console.log(`[${loc.name}] request failed:`, err.message);
-      return null;
+      panoCache.delete(loc.name); // don't remember network failures
+      return [];
     }
   }
-  return null;
+  panoCache.delete(loc.name); // every box size errored, so allow a retry later
+  return [];
 }
-
 // POST /api/game/start -> creates a game with 5 rounds.
 // The reply contains ONLY image IDs, not the answers.
 app.post('/api/game/start', async (req, res) => {
   try {
     const rounds = [];
-    for (const loc of shuffle(LOCATIONS)) {
+      for (const loc of shuffle(LOCATIONS)) {
       if (rounds.length === TOTAL_ROUNDS) break;
-      const found = await findPano(loc);
-      if (found) rounds.push(found);
+      const panos = await getPanos(loc);
+      if (panos.length === 0) continue; // no 360 photos here, skip this city
+      rounds.push(panos[Math.floor(Math.random() * panos.length)]);
     }
 
     if (rounds.length < TOTAL_ROUNDS) {
@@ -133,4 +151,6 @@ app.listen(PORT, (err) => {
     process.exit(1);
   }
   console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server running on http://localhost:${PORT}`);
+  LOCATIONS.forEach(getPanos); // search every city in the background, in parallel
 });
