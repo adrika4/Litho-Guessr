@@ -28,7 +28,7 @@ const CLIENT_ORIGINS = (process.env.CLIENT_ORIGIN || 'http://localhost:5173')
 // Middleware = functions every request passes through, in order, before reaching a route.
 const app = express();
 app.set('trust proxy', 1);              // behind Render's proxy, so rate limits see real client IPs
-app.use(cors({ origin: CLIENT_ORIGINS }));
+app.use(cors());
 app.use(express.json());                // turns a JSON request body into req.body
 
 const generalLimiter = rateLimit({
