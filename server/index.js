@@ -1,4 +1,10 @@
 // ============ 1. IMPORTS ============
+import dns from 'node:dns';
+
+// Some home networks block the DNS lookup MongoDB Atlas needs. For local use, ask public DNS instead.
+if (process.env.USE_PUBLIC_DNS === 'true') {
+  dns.setServers(['8.8.8.8', '1.1.1.1']);
+}
 import 'dotenv/config';               // loads server/.env into process.env
 import crypto from 'node:crypto';     // built-in: randomUUID() for game IDs
 import express from 'express';        // web framework: routes + middleware
