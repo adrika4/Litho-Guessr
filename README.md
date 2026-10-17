@@ -2,7 +2,7 @@
 
 A GeoGuessr-style geography game. You are dropped into a real 360° street-level photo, look around for clues, drop a pin on a world map, and get points based on how close you were. Five rounds per game, with a saved leaderboard.
 
-**Live demo:** `PASTE_YOUR_VERCEL_URL_HERE`
+**Live demo:** `(https://litho-guessr.vercel.app/)`
 > The server runs on a free tier and sleeps when idle, so the first load can take up to a minute.
 
 ![Litho-Guessr Screenshot](./image.png)
