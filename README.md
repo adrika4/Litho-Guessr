@@ -5,8 +5,7 @@ A GeoGuessr-style geography game. You are dropped into a real 360° street-level
 **Live demo:** `PASTE_YOUR_VERCEL_URL_HERE`
 > The server runs on a free tier and sleeps when idle, so the first load can take up to a minute.
 
-![Gameplay screenshot](docs/screenshot-game.png)
-![Result screenshot](docs/screenshot-result.png)
+![Litho-Guessr Screenshot](./image.png)
 
 ## Features
 
